@@ -43,11 +43,19 @@
             opts.pattern.split('/').map((field, key) => {
                 if (field.includes(':')) {
                     const element = App.$('cp-field[bind="entry.' + field.substring(1) + '"]');
-                    if (element.length && element[0].getAttribute('type') === 'text') {
-                        element.on('keyup', function (el) {
-                            $this.updateValue(key, el.target.value);
-                            $this.update();
-                        });
+                    if (element.length) {
+                        switch (element[0].getAttribute('type')) {
+                            case 'text':
+                                element.on('keyup', function (el) {
+                                    $this.updateValue(key, el.target.value);
+                                });
+                                break;
+                            case 'select':
+                                element.on('change', function (el) {
+                                    $this.updateValue(key, el.target.value);
+                                });
+                                break;
+                        }
                     } else {
                         this.error = 'field "' + field + '" in pattern does not exist';
                     }
@@ -70,7 +78,7 @@
 
                 const result = current.filter(t => !t.includes(':')).join('/');
 
-                $this.$setValue(buildURL(result));
+                $this.$setValue(buildURL(result), true);
             }
 
             this.updateLengthIndicator();
